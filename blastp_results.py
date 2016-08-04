@@ -125,7 +125,7 @@ def calculate_percentage_by_evalue():
     """
 
     eval_list = []
-    for i in range(1, 101, 5):
+    for i in range(0, 101, 5):
         eval_list.append(10 ** -i)
 
     # count total number of taxa
