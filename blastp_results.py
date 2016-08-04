@@ -13,10 +13,8 @@ blastp_output = sys.argv[1]
 
 # hard-coded links to taxa lists:
 ## CHANGE_ME to match your own file path
-jgi_taxa_file = "/Users/rgroussman/Dropbox/Armbrust/bioinfo/scripts/taxa_lists/jgi_taxa.list"
-mmetsp_taxa_file = "/Users/rgroussman/Dropbox/Armbrust/bioinfo/scripts/taxa_lists/mmetsp_taxa.list"
-# campep2mmetsp_file = "/Users/rgroussman/data/MMETSP/CAMPEP_to_MMETSP.csv" # not used
-
+jgi_taxa_file = "/Users/rgroussman/Dropbox/Armbrust/bioinfo/scripts/metatranscriptomics/taxa_lists/jgi_taxa.list"
+mmetsp_taxa_file = "/Users/rgroussman/Dropbox/Armbrust/bioinfo/scripts/metatranscriptomics/taxa_lists/mmetsp_taxa.list"
 
 def process_blast_output(blastp_output):
     """This function will load the given argument for BLASTP output, and then retrieve the e-values
@@ -78,21 +76,6 @@ def get_ncgr_elts(ncgr_elts):
 
     return mmetsp_id, pep_id
 
-### We don't have to use this slow-arse function anymore :) ###
-# def link_CAMPEP_to_MMETSP_id():
-#     """Loads the CSV linking each CAMPEP id to the MMETSP id. Returns as a
-#     dictionary with CAMPEP ids as keys and MMETSP id, and seq id as values in a tuple"""
-#
-#     # CHANGE_ME to match your own file path
-#     CAMPEP_to_MMETSP_path = "/Users/rgroussman/data/MMETSP/CAMPEP_to_MMETSP.csv"
-#     CAMPEP_to_MMETSP_file = open(CAMPEP_to_MMETSP_path, 'r')
-#
-#     global CAMPEP_to_MMETSP_dict
-#     CAMPEP_to_MMETSP_dict = {}
-#     for line in CAMPEP_to_MMETSP_file:
-#         line_elts = line.split(",")
-#         CAMPEP_to_MMETSP_dict[line_elts[0]] = (line_elts[1], line_elts[2])
-#     return CAMPEP_to_MMETSP_dict
 
 def determine_type(seq_header):
     """Determines from a fasta header whether it is from the JGI or MMETSP collections.
@@ -142,36 +125,53 @@ def calculate_percentage_by_evalue():
     """
 
     eval_list = []
-    for i in range(5, 101, 5):
+    for i in range(1, 101, 5):
         eval_list.append(10 ** -i)
 
     # count total number of taxa
     total_taxa = len(taxa_dict.keys())
     print
+    print "Total number of JGI samples:", len(jgi_taxa)
+    print "Total number of MMETSP samples", len(mmetsp_taxa)
     print "Total number of transcriptome samples:", total_taxa
     print
 
     eval_pcts = []
+    jgi_eval_pcts = []
+    mmetsp_eval_pcts = []
     print "### Proportion of taxa with at least one BLASTP hit ###"
     for i in eval_list:
-        eval_matches = count_matches_at_eval(i)
-        print "At e-value " + str(i) + ": " + "{0:.2f}".format(eval_matches/total_taxa)
+        eval_matches, jgi_matches, mmetsp_matches = count_matches_at_eval(i)
+        print "## At e-value " + str(i) + ": "
+        print "JGI matches: " + "{0:.2f}".format(eval_matches/len(jgi_taxa))
+        print "MMETSP matches: " + "{0:.2f}".format(eval_matches/len(mmetsp_taxa))
+        print "Total matches: " + "{0:.2f}".format(eval_matches/total_taxa)
+        print
+
         eval_pcts.append(eval_matches/total_taxa)
     return eval_list, eval_pcts
+
+
 
 def count_matches_at_eval(i):
     """Counts the number of taxa with >=1 match at given eval, returns integer"""
 
-    count = 0.0
+    total_count = 0.0
+    jgi_count = 0.0
+    mmetsp_count = 0.0
     for taxon in taxa_dict.keys():
         counted = False
         if len(taxa_dict[taxon]) > 0:
             for evalue in taxa_dict[taxon]:
                 if float(evalue) <= i and counted == False:
-                    count += 1
+                    total_count += 1
+                    if taxon in jgi_taxa:
+                        jgi_count += 1
+                    elif taxon in mmetsp_taxa:
+                        mmetsp_count += 1
                     counted = True
 
-    return count
+    return total_count, jgi_count, mmetsp_count
 
 def plot_pct_by_evalue(eval_list, eval_pcts):
     """Generates a plot of pct hits versus evalue criteria"""

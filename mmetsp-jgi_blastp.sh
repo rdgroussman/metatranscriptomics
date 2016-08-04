@@ -26,13 +26,13 @@ fi
 # BLASTP fasta against JGI gene models
 # CHANGE_ME to match your own path for blastdb
 echo "Running BLASTP of $1.fasta against 172,441 JGI gene models..."
-blastp -db /Users/rgroussman/data/JGI/blastdb/JGI_filtered_aa -query $1.fasta -out blastp_out/$1.vsJGI.tab -outfmt "6 qseqid sseqid evalue stitle" -evalue 1e-05
+blastp -db /Users/rgroussman/data/JGI/blastdb/JGI_filtered_aa -query $1.fasta -out blastp_out/$1.vsJGI.tab -outfmt "6 qseqid sseqid evalue stitle" -evalue 1e-01
 echo "Done: blastp_out/$1.vsJGI.tab"
 
 # BLASTP fasta against MMETSP
 # CHANGE_ME to match your own path for blastdb
 echo "Running BLASTP of $1.fasta against 16,228,928 MMETSP gene models..."
-blastp -db /Users/rgroussman/data/MMETSP/blastdb/MMETSP_aa -query $1.fasta -out blastp_out/$1.vsMMETSP.tab -outfmt "6 qseqid sseqid evalue stitle" -evalue 1e-05
+blastp -db /Users/rgroussman/data/MMETSP/blastdb/MMETSP_aa -query $1.fasta -out blastp_out/$1.vsMMETSP.tab -outfmt "6 qseqid sseqid evalue stitle" -evalue 1e-01
 echo "Done: blastp_out/$1.vsMMETSP.tab"
 
 # concatenate results
